@@ -1,6 +1,9 @@
 name: Publish Development Build
 on: push
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,8 +11,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-            persist-credentials: false
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
