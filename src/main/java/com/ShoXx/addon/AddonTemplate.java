@@ -22,7 +22,7 @@ public class AddonTemplate extends MeteorAddon {
 
     @Override
     public void onInitialize() {
-        LOG.info("Initializing Meteor Addon Template");
+        LOG.info("Initializing ClogNet");
 
         // Modules
         Modules.get().add(new WallBuilder());
