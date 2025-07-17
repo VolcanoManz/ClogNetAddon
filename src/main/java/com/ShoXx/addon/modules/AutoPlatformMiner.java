@@ -17,7 +17,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -120,7 +119,7 @@ public class AutoPlatformMiner extends Module {
     private int mineDelayTicks = 0;
     private int moveTicks = 0;
     private State state = State.MINING;
-    private List<BlockPos> targetBlocks = new ArrayList<>();
+    private final List<BlockPos> targetBlocks = new ArrayList<>();
     private boolean baritoneAvailable = false;
     private BlockPos currentMiningBlock = null;
     private boolean isMining = false;
@@ -453,7 +452,6 @@ public class AutoPlatformMiner extends Module {
                 currentMiningBlock = null;
                 miningStartTime = 0;
                 mineDelayTicks = mineDelay.get(); // Set delay before next block
-                return;
             }
         }
     }
@@ -488,7 +486,7 @@ public class AutoPlatformMiner extends Module {
             Rotations.rotate(Rotations.getYaw(hitVec), Rotations.getPitch(hitVec));
         }
 
-        // Send start mining packet
+        // Send a start mining packet
         sendStartMiningPacket(pos, currentMiningDirection);
     }
 
@@ -527,7 +525,7 @@ public class AutoPlatformMiner extends Module {
             direction
         ));
         mc.player.swingHand(Hand.MAIN_HAND);
-        info("Started mining block at " + pos.toString());
+        info("Started mining block at " + pos);
     }
 
     private void sendStopMiningPacket(BlockPos pos, Direction direction) {
@@ -536,7 +534,7 @@ public class AutoPlatformMiner extends Module {
             pos,
             direction
         ));
-        info("Stopped mining block at " + pos.toString());
+        info("Stopped mining block at " + pos);
     }
 
     private void waitToMove() {

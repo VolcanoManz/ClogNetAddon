@@ -6,15 +6,12 @@ import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.containers.WVerticalList;
-
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import com.ShoXx.addon.AddonTemplate;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
-import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
@@ -141,14 +138,14 @@ public class WallBuilder extends Module {
     );
 
     // Pattern 1 boolean arrays for GUI
-    private boolean[][] pattern1 = new boolean[5][5];
-    private boolean[][] pattern2 = new boolean[5][5];
+    private final boolean[][] pattern1 = new boolean[5][5];
+    private final boolean[][] pattern2 = new boolean[5][5];
 
     private long lastPlaceTime = 0;
     private int walkTicks = 0;
     private int currentRetries = 0;
     private BlockPos targetPos;
-    private List<BlockPos> placedBlocks = new ArrayList<>();
+    private final List<BlockPos> placedBlocks = new ArrayList<>();
     private boolean baritoneAvailable = false;
 
     private enum State {
@@ -182,12 +179,12 @@ public class WallBuilder extends Module {
     @Override
     public WWidget getWidget(GuiTheme theme) {
         WVerticalList list = theme.verticalList();
-        
+
         // Pattern 1 section
         list.add(theme.label("Pattern 1")).expandX();
         WTable table1 = theme.table();
         list.add(table1);
-        
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 final int row = i;
@@ -197,13 +194,13 @@ public class WallBuilder extends Module {
             }
             table1.row();
         }
-        
+
         // Pattern 2 section (only if usePattern2 is enabled)
         if (usePattern2.get()) {
             list.add(theme.label("Pattern 2")).expandX();
             WTable table2 = theme.table();
             list.add(table2);
-            
+
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
                     final int row = i;
@@ -214,7 +211,7 @@ public class WallBuilder extends Module {
                 table2.row();
             }
         }
-        
+
         return list;
     }
 
@@ -270,24 +267,18 @@ public class WallBuilder extends Module {
                     // Wall extends diagonally from the start position
                     // j ranges from 0-4, so blocks are placed at positions 0,1,2,3,4 along the diagonal
 
-                    switch (facing) {
-                        case NORTH: // Player facing North, render NE diagonal wall
+                    pos = switch (facing) {
+                        case NORTH -> // Player facing North, render NE diagonal wall
                             // Example: at (0,-59,0) render blocks at (0,-59,-4), (1,-59,-3), (2,-59,-2), (3,-59,-1), (4,-59,0)
-                            pos = start.add(j, i, -2 + j); // NE diagonal: X increases, Z increases toward 0
-                            break;
-                        case EAST: // Player facing East, render SE diagonal wall
-                            pos = start.add(2 - j, i, j); // SE diagonal: X decreases from +2, Z increases
-                            break;
-                        case SOUTH: // Player facing South, render SW diagonal wall
-                            pos = start.add(-j, i, 2 - j); // SW diagonal: X decreases, Z decreases from +2
-                            break;
-                        case WEST: // Player facing West, render NW diagonal wall
-                            pos = start.add(-2 + j, i, -j); // NW diagonal: X increases toward 0, Z decreases
-                            break;
-                        default:
-                            pos = start.add(j, i, 0);
-                            break;
-                    }
+                            start.add(j, i, -2 + j); // NE diagonal: X increases, Z increases toward 0
+                        case EAST -> // Player facing East, render SE diagonal wall
+                            start.add(2 - j, i, j); // SE diagonal: X decreases from +2, Z increases
+                        case SOUTH -> // Player facing South, render SW diagonal wall
+                            start.add(-j, i, 2 - j); // SW diagonal: X decreases, Z decreases from +2
+                        case WEST -> // Player facing West, render NW diagonal wall
+                            start.add(-2 + j, i, -j); // NW diagonal: X increases toward 0, Z decreases
+                        default -> start.add(j, i, 0);
+                    };
                 } else {
                     // Normal building: render straight wall perpendicular to facing direction
                     pos = start.add(
@@ -398,23 +389,17 @@ public class WallBuilder extends Module {
 
             if (diagonalBuilding.get()) {
                 // Diagonal movement commands - move backward-left to continue diagonal pattern
-                switch (facing) {
-                    case NORTH: // Built NE diagonal, move SW to continue
-                        command = "#goto ~-1 ~ ~+1"; // Southwest
-                        break;
-                    case EAST: // Built SE diagonal, move NW to continue
-                        command = "#goto ~-1 ~ ~-1"; // Northwest
-                        break;
-                    case SOUTH: // Built SW diagonal, move NE to continue
-                        command = "#goto ~+1 ~ ~-1"; // Northeast
-                        break;
-                    case WEST: // Built NW diagonal, move SE to continue
-                        command = "#goto ~+1 ~ ~+1"; // Southeast
-                        break;
-                    default:
-                        command = "#goto ~-1 ~ ~+1"; // fallback
-                        break;
-                }
+                command = switch (facing) {
+                    case NORTH -> // Built NE diagonal, move SW to continue
+                        "#goto ~-1 ~ ~+1"; // Southwest
+                    case EAST -> // Built SE diagonal, move NW to continue
+                        "#goto ~-1 ~ ~-1"; // Northwest
+                    case SOUTH -> // Built SW diagonal, move NE to continue
+                        "#goto ~+1 ~ ~-1"; // Northeast
+                    case WEST -> // Built NW diagonal, move SE to continue
+                        "#goto ~+1 ~ ~+1"; // Southeast
+                    default -> "#goto ~-1 ~ ~+1"; // fallback
+                };
             } else {
                 // Straight movement commands
                 switch (facing) {

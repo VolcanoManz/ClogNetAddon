@@ -85,7 +85,6 @@ public class ImageDisplayHud extends HudElement {
     private BufferedImage[] gifFrames;
     private int currentFrame = 0;
     private long lastFrameTime = 0;
-    private int frameDelay = 100; // Default 100ms delay
     private boolean isGif = false;
 
     public ImageDisplayHud() {
@@ -255,7 +254,7 @@ public class ImageDisplayHud extends HudElement {
             for (int x = 0; x < imageWidth; x++) {
                 for (int y = 0; y < imageHeight; y++) {
                     int argb = frame.getRGB(x, y);
-                    // Convert ARGB to ABGR format for NativeImage
+                    // Convert ARGB to argb format for NativeImage
                     int a = (argb >> 24) & 0xFF;
                     int r = (argb >> 16) & 0xFF;
                     int g = (argb >> 8) & 0xFF;
@@ -267,7 +266,7 @@ public class ImageDisplayHud extends HudElement {
 
             // Create texture
             NativeImageBackedTexture texture = new NativeImageBackedTexture(() -> "image_display_hud_frame", nativeImage);
-            textureId = Identifier.of("shoxxaddon", "image_display_hud_frame_" + System.currentTimeMillis());
+            textureId = Identifier.of("ShoXx Addon", "image_display_hud_frame_" + System.currentTimeMillis());
             MinecraftClient.getInstance().getTextureManager().registerTexture(textureId, texture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -276,6 +275,8 @@ public class ImageDisplayHud extends HudElement {
 
     private void updateGifFrame() {
         long currentTime = System.currentTimeMillis();
+        // Default 100ms delay
+        int frameDelay = 100;
         if (currentTime - lastFrameTime >= frameDelay) {
             currentFrame = (currentFrame + 1) % gifFrames.length;
             loadFrameAsTexture(gifFrames[currentFrame]);
@@ -283,15 +284,4 @@ public class ImageDisplayHud extends HudElement {
         }
     }
 
-    public void onActivated() {
-        loadImage();
-    }
-
-    public void onDeactivated() {
-        // Clean up texture when deactivated
-        if (textureId != null) {
-            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureId);
-            textureId = null;
-        }
-    }
 }

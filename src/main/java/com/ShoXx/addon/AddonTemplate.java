@@ -2,7 +2,6 @@ package com.ShoXx.addon;
 
 import com.ShoXx.addon.modules.AutoPlatformMiner;
 import com.ShoXx.addon.modules.WallBuilder;
-import com.ShoXx.addon.modules.AutoPlatformMiner;
 import com.ShoXx.addon.commands.CommandExample;
 import com.ShoXx.addon.hud.ImageDisplayHud;
 import com.mojang.logging.LogUtils;
