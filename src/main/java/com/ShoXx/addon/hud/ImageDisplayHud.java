@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 
 public class ImageDisplayHud extends HudElement {
@@ -86,6 +87,18 @@ public class ImageDisplayHud extends HudElement {
     private int currentFrame = 0;
     private long lastFrameTime = 0;
     private boolean isGif = false;
+
+    // Reflection for setColor method
+    private static Method setColorMethod;
+    
+    static {
+        try {
+            setColorMethod = NativeImage.class.getDeclaredMethod("setColor", int.class, int.class, int.class);
+            setColorMethod.setAccessible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public ImageDisplayHud() {
         super(INFO);
@@ -188,23 +201,22 @@ public class ImageDisplayHud extends HudElement {
         imageHeight = bufferedImage.getHeight();
         isGif = false;
 
-        // Convert BufferedImage to NativeImage
+        // Convert BufferedImage to NativeImage using reflection
         NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, false);
         for (int x = 0; x < imageWidth; x++) {
             for (int y = 0; y < imageHeight; y++) {
                 int argb = bufferedImage.getRGB(x, y);
-                // Convert ARGB to ABGR format for NativeImage
-                int a = (argb >> 24) & 0xFF;
-                int r = (argb >> 16) & 0xFF;
-                int g = (argb >> 8) & 0xFF;
-                int b = argb & 0xFF;
-                int abgr = (a << 24) | (b << 16) | (g << 8) | r;
-                nativeImage.setColor(x, y, abgr);
+                // Use reflection to call setColor
+                try {
+                    setColorMethod.invoke(nativeImage, x, y, argb);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        // Create texture
-        NativeImageBackedTexture texture = new NativeImageBackedTexture(() -> "image_display_hud", nativeImage);
+        // Create texture using correct constructor
+        NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
         textureId = Identifier.of("shoxxaddon", "image_display_hud_" + System.currentTimeMillis());
         MinecraftClient.getInstance().getTextureManager().registerTexture(textureId, texture);
     }
@@ -249,24 +261,23 @@ public class ImageDisplayHud extends HudElement {
                 MinecraftClient.getInstance().getTextureManager().destroyTexture(textureId);
             }
 
-            // Convert BufferedImage to NativeImage
+            // Convert BufferedImage to NativeImage using reflection
             NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, false);
             for (int x = 0; x < imageWidth; x++) {
                 for (int y = 0; y < imageHeight; y++) {
                     int argb = frame.getRGB(x, y);
-                    // Convert ARGB to argb format for NativeImage
-                    int a = (argb >> 24) & 0xFF;
-                    int r = (argb >> 16) & 0xFF;
-                    int g = (argb >> 8) & 0xFF;
-                    int b = argb & 0xFF;
-                    int abgr = (a << 24) | (b << 16) | (g << 8) | r;
-                    nativeImage.setColor(x, y, abgr);
+                    // Use reflection to call setColor
+                    try {
+                        setColorMethod.invoke(nativeImage, x, y, argb);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
-            // Create texture
-            NativeImageBackedTexture texture = new NativeImageBackedTexture(() -> "image_display_hud_frame", nativeImage);
-            textureId = Identifier.of("ShoXx Addon", "image_display_hud_frame_" + System.currentTimeMillis());
+            // Create texture using correct constructor
+            NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
+            textureId = Identifier.of("shoxxaddon", "image_display_hud_frame_" + System.currentTimeMillis());
             MinecraftClient.getInstance().getTextureManager().registerTexture(textureId, texture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,5 +294,4 @@ public class ImageDisplayHud extends HudElement {
             lastFrameTime = currentTime;
         }
     }
-
 }
