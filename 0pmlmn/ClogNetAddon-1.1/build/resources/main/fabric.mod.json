@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "clognet-addon",
+  "version": "1.1.0",
+  "name": "ClogNet Addon",
+  "description": "An addon template for Meteor Client addons.",
+  "authors": [
+    "ShoXxPyrT"
+  ],
+  "contact": {
+    "sources": "https://github.com/MeteorDevelopment/meteor-addon-template"
+  },
+  "icon": "assets/template/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "meteor": [
+      "com.ShoXx.addon.AddonTemplate"
+    ]
+  },
+  "mixins": [
+    "addon-template.mixins.json"
+  ],
+  "custom": {
+    "meteor-client:color": "255,95,31"
+  },
+  "depends": {
+    "java": ">=21",
+    "minecraft": ["1.21.5"],
+    "meteor-client": "*"
+  }
+}
